@@ -1,5 +1,5 @@
 const userModel = require("../Schema/user");
-const otpModel = require("../schema/otp");
+// const otpModel = require("../schema/otp");
 const bcrypt = require("bcrypt");
 const jsonWebToken = require("jsonwebtoken");
 
