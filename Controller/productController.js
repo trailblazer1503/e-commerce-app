@@ -14,73 +14,89 @@ const getAllProduct = async (req, res) => {
 }
 
 const addProduct = async (req, res) => {
-    const authToken = req.headers['authorization'];
+  try {
+    const authHeader = req.headers['authorization'];
 
-    if (!authToken) {
-        throw new Error("Access denied")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).send({ message: "Access denied. Token not provided." });
     }
 
-    const {userId, role} = jsonWebToken.decode(authToken);
+    const token = authHeader.split(" ")[1];
 
+    const decoded = jsonWebToken.verify(token, process.env.JWT_KEY);
 
-    if (role == 'admin') {
-        const productName = req.body.productName;
-        const cost = req.body.cost;
-        const productImage = req.body.productImage;
-        const description = req.body.description;
-        const stockStatus = req.body.stockStatus;
-    
-        const newProduct = await productModel.create({
-            productName,userId,cost,description,productImage,stockStatus
-            
-        })
-        res.status(201).send({
-            message: "product added successfully",
-            newProduct
-        });
-    } else {
-        res.status(409).send("You're not an admin")
+    const { userId, role } = decoded;
+
+    if (role !== 'admin') {
+      return res.status(403).send({ message: "Access denied. Only admin can add products." });
     }
-   
-}
 
-// transporter.sendMail({
-//     from: "ade@gmail.com",
-//     to: "abc@gmail.com",
-//     subject: "Todo (Create New Tod)",
-//     html: `
-//         <h1> You've added a new product:${req.body.title}</h1>
-//         <div>${req.body.description}</div>
-//     `
-// })
+    const { productName, cost, productImage, description, stockStatus } = req.body;
+
+    const newProduct = await productModel.create({
+      productName,
+      cost,
+      productImage,
+      description,
+      stockStatus,
+      userId
+    });
+
+    return res.status(201).send({
+      message: "Product added successfully",
+      product: newProduct
+    });
+
+  } catch (err) {
+    console.error("Add Product Error:", err.message);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+
 
 const deleteProduct = async (req, res) => {
+  try {
     const id = req.params.id;
-    const authToken = req.headers['authorization'];
+    const authHeader = req.headers['authorization'];
 
-    if (!authToken && !id) {
-        res.status(409).send("Provide product Id and token")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).send({ message: "Authorization token required." });
     }
 
-    const {userId, role} = jsonWebToken.decode(authToken);
-
-    if (role === 'admin') {
-
-    let deleteProduct = await productModel.findByIdAndDelete(id).where('userId').equals(userId);
-
-        if (!deleteProduct) {
-        res.status(409).send("You don't have a product to delete")
+    if (!id) {
+      return res.status(400).send({ message: "Product ID is required." });
     }
 
-    res.send({
-        message: 'Product deleted successfully',
-        deleteProduct
+    const token = authHeader.split(" ")[1];
+    const decoded = jsonWebToken.verify(token, process.env.JWT_KEY);
+
+    const { userId, role } = decoded;
+
+    if (role !== 'admin') {
+      return res.status(403).send({ message: "You're not authorized to delete this product." });
+    }
+
+    const product = await productModel.findOne({ _id: id, userId });
+
+    if (!product) {
+      return res.status(409).send({ message: "You don't have a product to delete." });
+    }
+
+    await productModel.findByIdAndDelete(id);
+
+    return res.status(200).send({
+      message: 'Product deleted successfully',
+      product
     });
-    } else {
-        throw new Error("You're not an admin")
-    }
 
-}
+  } catch (err) {
+    console.error("Delete product error:", err.message);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+
 
 module.exports = {
     addProduct,

@@ -20,7 +20,7 @@ const schema = new mongoose.Schema({
     role: {
         type: String,
         enum: ["admin", "customer"],
-        default: "admin"
+        default: "customer"
     },
     products: [{
         type: mongoose.Schema.ObjectId,
