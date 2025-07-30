@@ -18,17 +18,17 @@ const addProduct = async (req, res) => {
     const authHeader = req.headers['authorization'];
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).send({ message: "Access denied. Token not provided." });
+      return res.status(401).json({ message: "Access denied. Token not provided." });
     }
 
     const token = authHeader.split(" ")[1];
 
-    const decoded = jsonWebToken.verify(token, process.env.JWT_KEY);
+    const decoded = jsonWebToken.verify(token, process.env.JWT_KEY || "yourSecretKey");
 
     const { userId, role } = decoded;
 
     if (role !== 'admin') {
-      return res.status(403).send({ message: "Access denied. Only admin can add products." });
+      return res.status(403).json({ message: "Access denied. Only admin can add products." });
     }
 
     const { productName, cost, productImage, description, stockStatus } = req.body;
@@ -42,7 +42,7 @@ const addProduct = async (req, res) => {
       userId
     });
 
-    return res.status(201).send({
+    return res.status(201).json({
       message: "Product added successfully",
       product: newProduct
     });
@@ -53,39 +53,38 @@ const addProduct = async (req, res) => {
   }
 };
 
-
-
 const deleteProduct = async (req, res) => {
   try {
     const id = req.params.id;
     const authHeader = req.headers['authorization'];
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).send({ message: "Authorization token required." });
+      return res.status(401).json({ message: "Authorization token required." });
     }
 
     if (!id) {
-      return res.status(400).send({ message: "Product ID is required." });
+      return res.status(400).json({ message: "Product ID is required." });
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = jsonWebToken.verify(token, process.env.JWT_KEY);
+    const decoded = jsonWebToken.verify(token, process.env.JWT_KEY || "yourSecretKey");
 
     const { userId, role } = decoded;
 
     if (role !== 'admin') {
-      return res.status(403).send({ message: "You're not authorized to delete this product." });
+      return res.status(403).json({ message: "You're not authorized to delete this product." });
     }
 
+   
     const product = await productModel.findOne({ _id: id, userId });
 
     if (!product) {
-      return res.status(409).send({ message: "You don't have a product to delete." });
+      return res.status(409).json({ message: "You don't have a product to delete." });
     }
 
     await productModel.findByIdAndDelete(id);
 
-    return res.status(200).send({
+    return res.status(200).json({
       message: 'Product deleted successfully',
       product
     });
