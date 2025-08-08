@@ -4,7 +4,7 @@ const jsonWebToken = require("jsonwebtoken");
 
 const getAllProduct = async (req, res) => {
     try {
-        const product = await productModel.find();
+        const product = await productModel.find().populate('brand');
         res.send(product)
     } catch (error) {
         res.status.send({
@@ -31,7 +31,7 @@ const addProduct = async (req, res) => {
       return res.status(403).json({ message: "Access denied. Only admin can add products." });
     }
 
-    const { productName, cost, productImage, description, stockStatus } = req.body;
+    const { productName, cost, productImage, description,brand, stockStatus } = req.body;
 
     const newProduct = await productModel.create({
       productName,
@@ -39,6 +39,7 @@ const addProduct = async (req, res) => {
       productImage,
       description,
       stockStatus,
+      brand,
       userId
     });
 
@@ -95,10 +96,26 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const getProductsByBrandPaginated = async (req, res) => {
+  try {
+    const { brand, page, limit } = req.params;
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      populate: "brand"
+    };
+    const products = await productModel.paginate({ brand }, options);
+    res.json(products);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 
 
 module.exports = {
     addProduct,
     getAllProduct,
-    deleteProduct
+  deleteProduct,
+    getProductsByBrandPaginated
 }

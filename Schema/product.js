@@ -1,6 +1,7 @@
 const { ref } = require('joi');
 const mongoose = require('mongoose');
 const userModel = require('./user');
+const mongoosePaginate = require("mongoose-paginate-v2");
 
 const schema = new mongoose.Schema({
     productName: {
@@ -32,11 +33,16 @@ const schema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "users",
+    },
+    brand: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'brands'
     }
 },{
     timestamps: true
 });
 
+schema.plugin(mongoosePaginate);
 const productModel = mongoose.model('products', schema)
 
 module.exports = productModel;

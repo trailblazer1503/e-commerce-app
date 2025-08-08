@@ -1,25 +1,24 @@
-const jsonWebToken = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 function checkIfLoggedIn(req, res, next) {
     try {
-
-        if (!req.headers.authorization) { return res.status(400).send({ message: "No token supplied" }); }
-
-        const [scheme, token] = req.headers.authorization.split(" ");
-
-        if (scheme.toLocaleLowerCase() == "bearer") {
-            jsonWebToken.decode()
-            const value = jsonWebToken.verify(token, process.env.JWT_KEY);
-            req.decoded = value;
-            next();
-        } else {
-            res.status(422).send({
-                message: "Invalid authentication scheme"
-            });
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(400).json({ message: "No token supplied" });
         }
+
+        const [scheme, token] = authHeader.split(" ");
+        if (scheme.toLowerCase() !== "bearer") {
+            return res.status(422).json({ message: "Invalid authentication scheme" });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_KEY);
+        req.user = decoded; // ✅ Store decoded token payload in req.user
+        next();
     } catch (error) {
-        res.status(500).send({ error });
+        return res.status(401).json({ message: "Invalid or expired token" });
     }
 }
+// console.log("Decoded token:", decoded);
 
 module.exports = checkIfLoggedIn;
