@@ -46,7 +46,7 @@ const getBrands = async (req, res) => {
 
 const deleteBrand = async (req, res) => {
   try {
-    const { id } = req.body;
+    const { id } = req.params;
     await Brand.findByIdAndDelete(id);
     res.json({ message: "Brand deleted" });
   } catch (err) {
