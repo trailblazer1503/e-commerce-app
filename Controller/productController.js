@@ -1,4 +1,4 @@
-// const transporter = require('/Utility/sendEmail')
+// const transporter = require('../Utility/sendmail')
 const productModel = require('../Schema/product')
 const jsonWebToken = require("jsonwebtoken");
 
@@ -42,7 +42,15 @@ const addProduct = async (req, res) => {
       brand,
       userId
     });
-
+    // transporter.sendMail({
+    //   from: "adeniyijoshua010@gmail.com",
+    //   to: "adeniyijoshua010@gmail.com",
+    //   subject: "Todo [create todo]",
+    //   html: `
+    //     <h1> You've added a new product: ${req.body.productName} </h1>
+    //     <div>${req.body.description}</div>
+    //   `
+    // })
     return res.status(201).json({
       message: "Product added successfully",
       product: newProduct

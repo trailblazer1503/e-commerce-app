@@ -1,8 +1,4 @@
-const Brand = require("../Schema/brand");
-
-
-const brandModel = require('../Schema/brand'); // make sure path is correct
-
+const brandModel = require('../Schema/brand'); 
 
 const createBrand = async (req, res) => {
     try {
@@ -32,7 +28,7 @@ const createBrand = async (req, res) => {
 const updateBrand = async (req, res) => {
   try {
     const { id, brandName } = req.body;
-    const brand = await Brand.findByIdAndUpdate(id, { brandName }, { new: true });
+    const brand = await brandModel.findByIdAndUpdate(id, { brandName }, { new: true });
     res.json(brand);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -40,14 +36,14 @@ const updateBrand = async (req, res) => {
 };
 
 const getBrands = async (req, res) => {
-  const brands = await Brand.find();
+  const brands = await brandModel.find();
   res.json(brands);
 };
 
 const deleteBrand = async (req, res) => {
   try {
     const { id } = req.params;
-    await Brand.findByIdAndDelete(id);
+    await brandModel.findByIdAndDelete(id);
     res.json({ message: "Brand deleted" });
   } catch (err) {
     res.status(400).json({ error: err.message });
