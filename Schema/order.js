@@ -8,12 +8,12 @@ const orderSchema = new mongoose.Schema({
         },
         productId: {
             type: mongoose.Schema.ObjectId,
-            ref: 'product',
+            ref: 'products',
             required: true
         },
         ownerId: {
             type: mongoose.Schema.ObjectId,
-            ref: 'user',
+            ref: 'users',
             required: true
         },
         quantity: {
@@ -32,7 +32,7 @@ const orderSchema = new mongoose.Schema({
     }],
     customer: {
         type: mongoose.Schema.ObjectId,
-        ref: 'user',
+        ref: 'users',
         required: true
     }
 }, {

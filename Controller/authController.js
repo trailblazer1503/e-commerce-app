@@ -66,10 +66,32 @@ async function login(req, res) {
     });
 }
 
+const getProfile = async (req, res) => {
+    try {
+      const userId = req.user.userId; // ✅ match payload key
+  
+      const user = await userModel.findById(userId).select('-password');
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.status(200).json({
+        message: 'Profile retrieved successfully',
+        profile: user,
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  };
+  
+  module.exports = getProfile;
+  
+
 
 
 module.exports = {
     register,
-    login
+    login,
+    getProfile
     
 }
