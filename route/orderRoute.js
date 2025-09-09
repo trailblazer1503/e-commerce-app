@@ -8,6 +8,6 @@ orderRouter.get('/order-history', checkIfLoggedIn, orderController.getOrderHisto
 orderRouter.post('/', checkIfLoggedIn, orderController.createOrder)
 orderRouter.get('/',  checkIfLoggedIn,adminMiddleware, orderController.getAllOrders)
 orderRouter.get('/:id', checkIfLoggedIn, adminMiddleware,orderController.getOrderById)
-orderRouter.patch('/:id/items/:itemId', checkIfLoggedIn, adminMiddleware, orderController.updateOrderStatus);
+// orderRouter.patch('/:id/items/:itemId', checkIfLoggedIn, adminMiddleware, orderController.updateOrderStatus);
 orderRouter.patch('/:id', checkIfLoggedIn, adminMiddleware, orderController.updateOrderStatusAll)
 module.exports = orderRouter;

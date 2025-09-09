@@ -54,7 +54,6 @@ const getOrderById = async (req, res) => {
   }
 };
 
-// Update Shipping Status of a Single Item
 const updateOrderStatus = async (req, res) => {
   try {
     const { id, itemId } = req.params;
@@ -69,11 +68,17 @@ const updateOrderStatus = async (req, res) => {
       { _id: id, 'items._id': itemId },
       { $set: { 'items.$.shippingStatus': shippingStatus } },
       { new: true }
-    );
+    ).select("customer"); 
 
-    if (!order) {
-      return res.status(404).json({ error: 'Order or item not found' });
+    if (!order || !order.customer) {
+      return res.status(404).json({ error: 'Order or customer not found' });
     }
+
+    const io = req.app.get("ioServer");
+    io.to(order.customer.toString()).emit("shippingStatusUpdate", {
+      title: "New shipping status",
+      message: `Your last order shipping status has been updated to ${shippingStatus}`,
+    });
 
     res.status(200).json({
       message: 'Order item status updated successfully',
